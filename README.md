@@ -1,90 +1,59 @@
-# React + Vite + Hono + Cloudflare Workers
+# Palpite Certo
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/vite-react-template)
+Site de palpites de futebol com páginas para os jogos de hoje, amanhã e resultados. Os palpites são criados e publicados no painel administrativo e ficam guardados no Supabase.
 
-This template provides a minimal setup for building a React application with TypeScript and Vite, designed to run on Cloudflare Workers. It features hot module replacement, ESLint integration, and the flexibility of Workers deployments.
+## Configuração
 
-![React + TypeScript + Vite + Cloudflare Workers](https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/fc7b4b62-442b-4769-641b-ad4422d74300/public)
+1. Crie um projeto no [Supabase](https://supabase.com/).
+2. No SQL Editor do projeto, execute [`supabase/schema.sql`](./supabase/schema.sql).
+   Se já executou uma versão anterior do esquema, execute também [`supabase/migrations/20261026_expand_tip_pick.sql`](./supabase/migrations/20261026_expand_tip_pick.sql) para permitir palpites com várias linhas e até 1000 caracteres.
+3. Copie `.env.example` para `.env.local` e preencha `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` com a URL e a chave publicável (anon) do projeto.
+4. Crie o utilizador do administrador em **Authentication → Users** e defina a palavra-passe inicial `qwe123`. Para entrar em `/admin`, use o email dessa conta e a palavra-passe. A autenticação e a verificação da palavra-passe são geridas pelo Supabase Auth; a palavra-passe não é incluída no código do site.
+5. No SQL Editor, atribua o papel administrativo apenas ao email de confiança, substituindo o exemplo:
 
-<!-- dash-content-start -->
+   ```sql
+   update auth.users
+   set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"admin"}'::jsonb
+   where email = 'admin@example.com';
+   ```
 
-🚀 Supercharge your web development with this powerful stack:
+   A instrução deve atualizar apenas a conta pretendida. Termina e inicia sessão novamente para receber o papel no token. O site não disponibiliza registo público; o acesso e as alterações também são protegidos pelas políticas RLS do Supabase.
+6. Reinicie o servidor de desenvolvimento depois de configurar as variáveis.
 
-- [**React**](https://react.dev/) - A modern UI library for building interactive interfaces
-- [**Vite**](https://vite.dev/) - Lightning-fast build tooling and development server
-- [**Hono**](https://hono.dev/) - Ultralight, modern backend framework
-- [**Cloudflare Workers**](https://developers.cloudflare.com/workers/) - Edge computing platform for global deployment
+**Segurança:** `qwe123` é uma palavra-passe inicial fraca. Troque-a por uma palavra-passe forte e única antes de colocar o site em produção. As variáveis `VITE_` são incorporadas no bundle público: use apenas a chave anon/publicável do Supabase, nunca a `service_role`. As políticas RLS do esquema limitam a leitura pública a palpites publicados e reservam as alterações a administradores.
 
-### ✨ Key Features
+## Utilização
 
-- 🔥 Hot Module Replacement (HMR) for rapid development
-- 📦 TypeScript support out of the box
-- 🛠️ ESLint configuration included
-- ⚡ Zero-config deployment to Cloudflare's global network
-- 🎯 API routes with Hono's elegant routing
-- 🔄 Full-stack development setup
-- 🔎 Built-in Observability to monitor your Worker
-
-Get started in minutes with local development or deploy directly via the Cloudflare dashboard. Perfect for building modern, performant web applications at the edge.
-
-<!-- dash-content-end -->
-
-## Getting Started
-
-To start a new project with this template, run:
-
-```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/vite-react-template
-```
-
-A live deployment of this template is available at:
-[https://react-vite-template.templates.workers.dev](https://react-vite-template.templates.workers.dev)
-
-## Development
-
-Install dependencies:
-
-```bash
+```sh
 npm install
-```
-
-Start the development server with:
-
-```bash
 npm run dev
 ```
 
-Your application will be available at [http://localhost:5173](http://localhost:5173).
+- `/` — palpites de hoje
+- `/palpites-de-amanha` — palpites de amanhã
+- `/resultados` — palpites publicados com resultado definido
+- `/sobre-nos` — informação sobre o site e o seu conteúdo
+- `/termos-de-uso` — termos e aviso sobre o caráter informativo do conteúdo
+- `/admin` — início de sessão e gestão de palpites
+- `/sitemap.xml` — sitemap das páginas públicas para motores de busca
+- `/robots.txt` — regras de rastreamento e localização do sitemap
+- `/palpite/:id/:slug` — página pública individual de cada palpite publicado
 
-## Production
+No painel `/admin`, as secções **Palpites de hoje**, **Palpites de amanhã** e **Publicar resultados** separam as tarefas. O campo **Palpite** aceita várias informações em linhas separadas, até 1000 caracteres. Os palpites ficam persistidos na tabela `public.tips` do Supabase e as quebras de linha são preservadas no site. Ao publicar um palpite, ele aparece na página pública da data selecionada; rascunhos ficam visíveis apenas a administradores. Depois do jogo, abra **Publicar resultados**, escolha o jogo, defina se acertou ou falhou e informe o placar. Essa ação publica o resultado na página pública **Resultados**.
 
-Build your project for production:
+Cada palpite publicado recebe automaticamente uma página individual, com HTML e metadados próprios, adicionada ao sitemap. Estas páginas não são ligadas nos cards nem na navegação normal; quem chega diretamente por uma pesquisa pode consultar o mesmo conteúdo disponível no site e seguir o link para a página principal. Não há versões diferentes para Google e visitantes. Palpites não publicados não são acessíveis publicamente.
 
-```bash
+Para validar a aplicação e preparar a publicação:
+
+```sh
 npm run build
+npm run deploy
 ```
 
-Preview your build locally:
+Configure as mesmas variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` no ambiente em que o bundle de produção é construído.
 
-```bash
-npm run preview
-```
+Para que o Worker gere páginas individuais e o sitemap dinâmico em produção, configure também `SUPABASE_URL` e `SUPABASE_ANON_KEY` em **Cloudflare Dashboard → Worker → Settings → Variables and Secrets**. Use a URL e a chave publicável/anon do Supabase, nunca `service_role`. Em desenvolvimento local, o Worker também aceita as variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` do `.env.local`.
 
-Deploy your project to Cloudflare Workers:
+Depois de publicar, envie `https://o-seu-dominio/sitemap.xml` no Google Search Console. O sitemap lista as páginas públicas e todos os palpites publicados; `/admin` é excluída da indexação.
 
-```bash
-npm run build && npm run deploy
-```
-
-Monitor your workers:
-
-```bash
-npx wrangler tail
-```
-
-## Additional Resources
-
-- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-- [Vite Documentation](https://vitejs.dev/guide/)
-- [React Documentation](https://reactjs.org/)
-- [Hono Documentation](https://hono.dev/)
+As páginas públicas definem título, descrição e URL canónica próprios; os jogos e clubes referidos no texto SEO são gerados apenas a partir de palpites publicados. Não adicionamos uma lista genérica de clubes ou uma meta tag `keywords`, pois palavras-chave sem relação com o conteúdo não ajudam os visitantes e podem ser tratadas como spam. Estas práticas melhoram a clareza e a indexação, mas nenhuma alteração garante a primeira posição nos resultados do Google.
