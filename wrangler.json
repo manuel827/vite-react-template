@@ -1,19 +1,13 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "vite-react-template",
-	"main": "./src/worker/index.ts",
+	"pages_build_output_dir": "./dist",
 	"compatibility_date": "2025-10-08",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
 	"observability": {
 		"enabled": true
-	},
-	"upload_source_maps": true,
-	"assets": {
-		"directory": "./dist/client",
-		"binding": "ASSETS",
-		"not_found_handling": "single-page-application"
 	},
 	"vars": {
 		"SUPABASE_URL": "https://wlzblbsdfjoceaigsrmq.supabase.co",

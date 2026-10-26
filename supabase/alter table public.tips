@@ -1,0 +1,6 @@
+alter table public.tips
+  drop constraint if exists tips_pick_check;
+
+alter table public.tips
+  add constraint tips_pick_check
+  check (char_length(pick) between 1 and 1000); se

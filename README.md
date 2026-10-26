@@ -43,14 +43,16 @@ No painel `/admin`, as secções **Palpites de hoje**, **Palpites de amanhã** e
 
 Cada palpite publicado recebe automaticamente uma página individual, com HTML e metadados próprios, adicionada ao sitemap. Estas páginas não são ligadas nos cards nem na navegação normal; quem chega diretamente por uma pesquisa pode consultar o mesmo conteúdo disponível no site e seguir o link para a página principal. Não há versões diferentes para Google e visitantes. Palpites não publicados não são acessíveis publicamente.
 
-Para validar a aplicação e preparar a publicação:
+Para validar a aplicação e preparar a publicação no Cloudflare Pages:
 
 ```sh
 npm run build
 npm run deploy
 ```
 
-O `wrangler.json` contém `SUPABASE_URL` e `SUPABASE_ANON_KEY` como variáveis públicas do Worker. O `vite.config.ts` reutiliza esses valores no bundle do site, pelo que o build no Cloudflare pode ligar-se ao Supabase sem depender de `.env.local`. Em desenvolvimento local, `.env.local` continua a ser aceite quando os valores não estão definidos no Wrangler. Só coloque aqui a URL do projeto e a chave `anon`/`publishable`: a chave pública é incorporada no site e não é um segredo. Nunca coloque a chave `service_role` neste ficheiro.
+No Cloudflare Pages, defina a raiz do projeto como `.` (ou deixe-a vazia), o comando de build como `npm run build` e o diretório de saída como `dist`. O `wrangler.json` também declara esse diretório e as Pages Functions em `functions/` tratam o sitemap, o robots.txt e as páginas individuais dos palpites. Para testar localmente a aplicação já compilada, use `npm run preview`.
+
+O `wrangler.json` contém `SUPABASE_URL` e `SUPABASE_ANON_KEY` como variáveis públicas das Pages Functions. O `vite.config.ts` reutiliza esses valores no bundle do site, pelo que o build no Cloudflare pode ligar-se ao Supabase sem depender de `.env.local`. Em desenvolvimento local, `.env.local` continua a ser aceite quando os valores não estão definidos no Wrangler. Só coloque aqui a URL do projeto e a chave `anon`/`publishable`: a chave pública é incorporada no site e não é um segredo. Nunca coloque a chave `service_role` neste ficheiro.
 
 Se trocar de projeto Supabase, atualize os dois valores `SUPABASE_URL` e `SUPABASE_ANON_KEY` em `wrangler.json` e publique novamente.
 

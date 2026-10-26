@@ -23,7 +23,7 @@ type PublicTip = {
 	score: string | null;
 };
 
-const app = new Hono<{ Bindings: WorkerBindings }>();
+export const app = new Hono<{ Bindings: WorkerBindings }>();
 
 app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
 
