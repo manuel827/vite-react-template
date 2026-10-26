@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 
 type WorkerBindings = Env & {
+	ASSETS: { fetch: typeof fetch };
 	SUPABASE_URL?: string;
 	SUPABASE_ANON_KEY?: string;
 	VITE_SUPABASE_URL?: string;
