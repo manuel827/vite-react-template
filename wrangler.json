@@ -3,7 +3,9 @@
 	"name": "vite-react-template",
 	"main": "./src/worker/index.ts",
 	"compatibility_date": "2025-10-08",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"observability": {
 		"enabled": true
 	},
@@ -12,5 +14,9 @@
 		"directory": "./dist/client",
 		"binding": "ASSETS",
 		"not_found_handling": "single-page-application"
+	},
+	"vars": {
+		"SUPABASE_URL": "https://wlzblbsdfjoceaigsrmq.supabase.co",
+		"SUPABASE_ANON_KEY": "sb_publishable_1qBg3Xdd102972ey569I6w_nAvFNAzS"
 	}
 }

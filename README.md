@@ -50,9 +50,9 @@ npm run build
 npm run deploy
 ```
 
-Configure as mesmas variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` no ambiente em que o bundle de produção é construído.
+O `wrangler.json` contém `SUPABASE_URL` e `SUPABASE_ANON_KEY` como variáveis públicas do Worker. O `vite.config.ts` reutiliza esses valores no bundle do site, pelo que o build no Cloudflare pode ligar-se ao Supabase sem depender de `.env.local`. Em desenvolvimento local, `.env.local` continua a ser aceite quando os valores não estão definidos no Wrangler. Só coloque aqui a URL do projeto e a chave `anon`/`publishable`: a chave pública é incorporada no site e não é um segredo. Nunca coloque a chave `service_role` neste ficheiro.
 
-Para que o Worker gere páginas individuais e o sitemap dinâmico em produção, configure também `SUPABASE_URL` e `SUPABASE_ANON_KEY` em **Cloudflare Dashboard → Worker → Settings → Variables and Secrets**. Use a URL e a chave publicável/anon do Supabase, nunca `service_role`. Em desenvolvimento local, o Worker também aceita as variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` do `.env.local`.
+Se trocar de projeto Supabase, atualize os dois valores `SUPABASE_URL` e `SUPABASE_ANON_KEY` em `wrangler.json` e publique novamente.
 
 Depois de publicar, envie `https://o-seu-dominio/sitemap.xml` no Google Search Console. O sitemap lista as páginas públicas e todos os palpites publicados; `/admin` é excluída da indexação.
 
