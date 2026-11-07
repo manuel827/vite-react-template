@@ -16,9 +16,15 @@
 			OneSignalDeferred.push(async function (OneSignal) {
 				await OneSignal.init({
 					appId: "8591c79d-c5c8-478c-a0d1-222cc559d699",
+					promptOptions: {
+						slidedown: {
+							prompts: [{ type: "push", autoPrompt: false }],
+						},
+					},
 				});
 			});
 		</script>
+		<script src="/onesignal-opt-in.js" defer></script>
 	</head>
 
 	<body>

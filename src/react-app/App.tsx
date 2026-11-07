@@ -118,6 +118,12 @@ function Footer() {
 						<a href="/sobre-nos">Sobre nós</a>
 						<a href="/termos-de-uso">Termos de uso</a>
 						<a href="/admin">Área do administrador</a>
+						<strong>Notificações</strong>
+						<p>Receba avisos sobre novos palpites.</p>
+						<div className="notification-opt-in">
+							<button className="btn primary" type="button" data-onesignal-opt-in disabled>Carregando...</button>
+							<span data-onesignal-status role="status" aria-live="polite" />
+						</div>
 					</div>
 				</div>
 				<p className="footer-disclaimer"><strong>Aviso:</strong> não somos uma casa de apostas, não aceitamos apostas nem movimentamos dinheiro. Os palpites, análises e resultados publicados são apenas informativos e não garantem ganhos. Aposte com responsabilidade e apenas se tiver idade legal.</p>
@@ -538,12 +544,37 @@ function AdminPage() {
 			published: adminSection === "results" ? true : form.published,
 		};
 		try {
-			const request = editingId
-				? supabase.from("tips").update(payload).eq("id", editingId)
-				: supabase.from("tips").insert(payload);
-			const { error: saveError } = await request;
+			const saveResult = editingId
+				? await supabase.from("tips").update(payload).eq("id", editingId).select("id").single()
+				: await supabase.from("tips").insert(payload).select("id").single();
+			const { data: savedTip, error: saveError } = saveResult;
 			if (saveError) setError(`Não foi possível guardar: ${saveError.message}`);
 			else {
+				const wasPublished = editingId
+					? tips.find((tip) => tip.id === editingId)?.published ?? false
+					: false;
+				if (adminSection !== "results" && payload.published && !wasPublished) {
+					try {
+						const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+						if (sessionError) throw sessionError;
+						if (!sessionData.session?.access_token) throw new Error("Inicia sessão novamente para enviar a notificação.");
+						const notificationResponse = await fetch("/api/notifications/published-tip", {
+							method: "POST",
+							headers: {
+								Authorization: `Bearer ${sessionData.session.access_token}`,
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({ tipId: savedTip.id }),
+						});
+						const notificationResult = await notificationResponse.json() as { error?: string };
+						if (!notificationResponse.ok) {
+							throw new Error(notificationResult.error ?? "O OneSignal não aceitou o envio da notificação.");
+						}
+					} catch (notificationError) {
+						console.error("The tip was published, but its notification could not be sent:", notificationError);
+						setError(`O palpite foi publicado, mas não foi possível notificar os inscritos: ${errorText(notificationError)}`);
+					}
+				}
 				setNotice(adminSection === "results" ? "Resultado publicado. Já está disponível na página Resultados." : editingId ? "Palpite atualizado." : form.published ? "Palpite publicado." : "Palpite guardado como rascunho.");
 				setForm(emptyForm(localDate(adminSection === "tomorrow" ? 1 : 0)));
 				setEditingId(null);
