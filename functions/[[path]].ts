@@ -3,7 +3,6 @@ import { app } from "../src/worker";
 type PagesEnvironment = {
 	SUPABASE_URL: string;
 	SUPABASE_ANON_KEY: string;
-	ONESIGNAL_REST_API_KEY?: string;
 };
 
 type PagesContext = {
@@ -17,7 +16,7 @@ export async function onRequest(context: PagesContext) {
 	const handledByApp =
 		path === "/sitemap.xml" ||
 		path === "/robots.txt" ||
-		path.startsWith("/api/") ||
+		path === "/api/" ||
 		/^\/palpite\/[^/]+\/[^/]+\/?$/.test(path);
 
 	if (!handledByApp) return context.next();

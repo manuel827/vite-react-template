@@ -6,7 +6,6 @@ type WorkerBindings = Env & {
 	SUPABASE_ANON_KEY?: string;
 	VITE_SUPABASE_URL?: string;
 	VITE_SUPABASE_ANON_KEY?: string;
-	ONESIGNAL_REST_API_KEY?: string;
 };
 
 type PublicTip = {
@@ -27,91 +26,6 @@ type PublicTip = {
 export const app = new Hono<{ Bindings: WorkerBindings }>();
 
 app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
-
-app.post("/api/notifications/published-tip", async (c) => {
-	const origin = new URL(c.req.url).origin;
-	if (c.req.header("origin") !== origin) {
-		return c.json({ error: "Pedido não autorizado." }, 403);
-	}
-
-	const config = supabaseConfig(c.env);
-	if (!config) return c.json({ error: "A configuração do Supabase está indisponível." }, 503);
-	if (!c.env.ONESIGNAL_REST_API_KEY) {
-		return c.json({ error: "A chave REST do OneSignal não está configurada no Cloudflare." }, 503);
-	}
-
-	const authorization = c.req.header("authorization") ?? "";
-	const token = authorization.match(/^Bearer\s+(.+)$/i)?.[1];
-	if (!token) return c.json({ error: "Inicia sessão como administrador para continuar." }, 401);
-
-	let body: { tipId?: unknown };
-	try {
-		body = await c.req.json<{ tipId?: unknown }>();
-	} catch {
-		return c.json({ error: "Pedido inválido." }, 400);
-	}
-	if (typeof body.tipId !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.tipId)) {
-		return c.json({ error: "Identificador de palpite inválido." }, 400);
-	}
-
-	try {
-		const userResponse = await fetch(new URL("/auth/v1/user", config.url), {
-			headers: { apikey: config.key, Authorization: `Bearer ${token}` },
-		});
-		if (userResponse.status === 401 || userResponse.status === 403) {
-			return c.json({ error: "A sessão expirou. Inicia sessão novamente." }, 401);
-		}
-		if (!userResponse.ok) {
-			console.error("Supabase admin verification failed:", userResponse.status);
-			return c.json({ error: "Não foi possível validar a conta de administrador." }, 502);
-		}
-		const user = await userResponse.json() as { app_metadata?: { role?: unknown } };
-		if (user.app_metadata?.role !== "admin") {
-			return c.json({ error: "Apenas administradores podem enviar notificações." }, 403);
-		}
-
-		const tipUrl = new URL("/rest/v1/tips", config.url);
-		tipUrl.searchParams.set("select", "id,home_team,away_team");
-		tipUrl.searchParams.set("id", `eq.${body.tipId}`);
-		tipUrl.searchParams.set("published", "eq.true");
-		tipUrl.searchParams.set("limit", "1");
-		const tipResponse = await fetch(tipUrl, {
-			headers: { apikey: config.key, Authorization: `Bearer ${token}` },
-		});
-		if (!tipResponse.ok) {
-			console.error("Supabase published-tip lookup failed:", tipResponse.status);
-			return c.json({ error: "Não foi possível confirmar a publicação do palpite." }, 502);
-		}
-		const tips = await tipResponse.json() as Pick<PublicTip, "id" | "home_team" | "away_team">[];
-		const tip = tips[0];
-		if (!tip) return c.json({ error: "O palpite publicado não foi encontrado." }, 404);
-
-		const title = `${tip.home_team} vs ${tip.away_team}`;
-		const notificationResponse = await fetch("https://api.onesignal.com/notifications", {
-			method: "POST",
-			headers: {
-				Authorization: `Key ${c.env.ONESIGNAL_REST_API_KEY}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				app_id: "8591c79d-c5c8-478c-a0d1-222cc559d699",
-				included_segments: ["Subscribed Users"],
-				headings: { pt: "Novo palpite publicado" },
-				contents: { pt: `${title}. Toque para consultar o novo palpite.` },
-				url: `${origin}${tipPath(tip)}`,
-			}),
-		});
-		if (!notificationResponse.ok) {
-			console.error("OneSignal notification request failed:", notificationResponse.status);
-			return c.json({ error: "O palpite foi publicado, mas o OneSignal não aceitou o envio da notificação." }, 502);
-		}
-
-		return c.json({ sent: true });
-	} catch (error) {
-		console.error("Unable to send published-tip notification:", error);
-		return c.json({ error: "O palpite foi publicado, mas não foi possível contactar o serviço de notificações." }, 502);
-	}
-});
 
 const publicPaths = [
 	"/",
@@ -260,21 +174,6 @@ app.get("/palpite/:id/:slug", async (c) => {
 <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
 <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
 ${stylesheetTag}
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-OneSignalDeferred.push(async function (OneSignal) {
-	await OneSignal.init({
-		appId: "8591c79d-c5c8-478c-a0d1-222cc559d699",
-		promptOptions: {
-			slidedown: {
-				prompts: [{ type: "push", autoPrompt: false }],
-			},
-		},
-	});
-});
-</script>
-<script src="/onesignal-opt-in.js" defer></script>
 <title>${safeTitle}</title>
 </head>
 <body>
@@ -292,7 +191,7 @@ ${tip.result !== "pending" ? `<p class="an"><strong>Resultado:</strong> ${outcom
 <p class="tip-page-disclaimer">Não somos uma casa de apostas. Este palpite e prognóstico são apenas informativos e não garantem resultados.</p>
 <p><a href="/">Ver todos os palpites no site</a></p>
 </main>
-<footer class="site-footer"><div class="footer-links"><strong>Notificações</strong><p>Receba avisos sobre novos palpites.</p><div class="notification-opt-in"><button class="btn primary" type="button" data-onesignal-opt-in disabled>Carregando...</button><span data-onesignal-status role="status" aria-live="polite"></span></div></div><p>Palpites de Futebol · Conteúdo gratuito e apenas informativo. Não somos uma casa de apostas.</p><a href="/sobre-nos">Sobre nós</a> · <a href="/termos-de-uso">Termos de uso</a></footer>
+<footer class="site-footer"><p>Palpites de Futebol · Conteúdo gratuito e apenas informativo. Não somos uma casa de apostas.</p><a href="/sobre-nos">Sobre nós</a> · <a href="/termos-de-uso">Termos de uso</a></footer>
 <a class="vip-fixed" href="#" aria-label="Ver palpites VIP (link ainda não configurado)"><span class="vip-icon" aria-hidden="true">★</span><span>Ver palpites VIP</span><span class="vip-arrow" aria-hidden="true">↗</span></a>
 </body>
 </html>`;
