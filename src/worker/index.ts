@@ -174,6 +174,15 @@ app.get("/palpite/:id/:slug", async (c) => {
 <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
 <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
 ${stylesheetTag}
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+OneSignalDeferred.push(async function (OneSignal) {
+	await OneSignal.init({
+		appId: "8591c79d-c5c8-478c-a0d1-222cc559d699",
+	});
+});
+</script>
 <title>${safeTitle}</title>
 </head>
 <body>
