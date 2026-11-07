@@ -193,23 +193,6 @@ ${tip.result !== "pending" ? `<p class="an"><strong>Resultado:</strong> ${outcom
 </main>
 <footer class="site-footer"><p>Palpites de Futebol · Conteúdo gratuito e apenas informativo. Não somos uma casa de apostas.</p><a href="/sobre-nos">Sobre nós</a> · <a href="/termos-de-uso">Termos de uso</a></footer>
 <a class="vip-fixed" href="#" aria-label="Ver palpites VIP (link ainda não configurado)"><span class="vip-icon" aria-hidden="true">★</span><span>Ver palpites VIP</span><span class="vip-arrow" aria-hidden="true">↗</span></a>
-<!-- start webpushr code -->
-<script>
-(function (w, d, s, id) {
-	if (typeof w.webpushr !== "undefined") return;
-	w.webpushr = w.webpushr || function () {
-		(w.webpushr.q = w.webpushr.q || []).push(arguments);
-	};
-	var js, fjs = d.getElementsByTagName(s)[0];
-	js = d.createElement(s);
-	js.id = id;
-	js.async = 1;
-	js.src = "https://cdn.webpushr.com/app.min.js";
-	fjs.parentNode.appendChild(js);
-})(window, document, "script", "webpushr-jssdk");
-webpushr("setup", { "key": "BCECruKIrCyIC58GrPw352v6Ps0v9acxSkxuHnViN7-Qd6Y1Q7AGVYRPm5viEAOr7L4Fa4KYsW_zXd3E-BRFRrA", "integration": "popup" });
-</script>
-<!-- end webpushr code -->
 </body>
 </html>`;
 		return c.html(html, 200, {

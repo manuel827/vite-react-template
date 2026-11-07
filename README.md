@@ -19,7 +19,6 @@ Site de palpites de futebol com páginas para os jogos de hoje, amanhã e result
 
    A instrução deve atualizar apenas a conta pretendida. Termina e inicia sessão novamente para receber o papel no token. O site não disponibiliza registo público; o acesso e as alterações também são protegidos pelas políticas RLS do Supabase.
 6. Reinicie o servidor de desenvolvimento depois de configurar as variáveis.
-7. As notificações Webpushr são inicializadas nas páginas públicas pelo código no fim do `<body>`. Configure e envie notificações pelo painel Webpushr.
 
 **Segurança:** `qwe123` é uma palavra-passe inicial fraca. Troque-a por uma palavra-passe forte e única antes de colocar o site em produção. As variáveis `VITE_` são incorporadas no bundle público: use apenas a chave anon/publicável do Supabase, nunca a `service_role`. As políticas RLS do esquema limitam a leitura pública a palpites publicados e reservam as alterações a administradores.
 
