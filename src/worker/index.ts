@@ -164,6 +164,8 @@ app.get("/palpite/:id/:slug", async (c) => {
 		const html = `<!doctype html>
 <html lang="pt-AO">
 <head>
+<script>(function(s){s.dataset.zone='12217647',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<script>(function(s){s.dataset.zone='12217796',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="${safeDescription}">
@@ -192,7 +194,7 @@ ${tip.result !== "pending" ? `<p class="an"><strong>Resultado:</strong> ${outcom
 <p><a href="/">Ver todos os palpites no site</a></p>
 </main>
 <footer class="site-footer"><p>Palpites de Futebol · Conteúdo gratuito e apenas informativo. Não somos uma casa de apostas.</p><a href="/sobre-nos">Sobre nós</a> · <a href="/termos-de-uso">Termos de uso</a></footer>
-<a class="vip-fixed" href="#" aria-label="Ver palpites VIP (link ainda não configurado)"><span class="vip-icon" aria-hidden="true">★</span><span>Ver palpites VIP</span><span class="vip-arrow" aria-hidden="true">↗</span></a>
+<a class="vip-fixed" href="https://uplcm.com/4/12217803" aria-label="Ver palpites VIP"><span class="vip-icon" aria-hidden="true">★</span><span>Ver palpites VIP</span><span class="vip-arrow" aria-hidden="true">↗</span></a>
 </body>
 </html>`;
 		return c.html(html, 200, {
