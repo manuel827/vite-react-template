@@ -164,7 +164,6 @@ app.get("/palpite/:id/:slug", async (c) => {
 		const html = `<!doctype html>
 <html lang="pt-AO">
 <head>
-<script>(function(s){s.dataset.zone='12217647',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <script>(function(s){s.dataset.zone='12217796',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
