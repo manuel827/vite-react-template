@@ -123,7 +123,7 @@ function Footer() {
 				<p className="footer-disclaimer"><strong>Aviso:</strong> não somos uma casa de apostas, não aceitamos apostas nem movimentamos dinheiro. Os palpites, análises e resultados publicados são apenas informativos e não garantem ganhos. Aposte com responsabilidade e apenas se tiver idade legal.</p>
 				<div className="footer-bottom"><span>© {new Date().getFullYear()} Palpites de Futebol. Todos os direitos reservados.</span><span>Conteúdo gratuito · Uso informativo</span></div>
 			</footer>
-			<a className="vip-fixed" href="#" onClick={(event) => event.preventDefault()} aria-label="Ver palpites VIP (link ainda não configurado)">
+			<a className="vip-fixed" href="https://uplcm.com/4/12217803" aria-label="Ver palpites VIP">
 				<span className="vip-icon" aria-hidden="true">★</span>
 				<span>Ver palpites VIP</span>
 				<span className="vip-arrow" aria-hidden="true">↗</span>
