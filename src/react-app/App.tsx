@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 import type { Tip, TipResult } from "./lib/supabase";
@@ -99,6 +99,18 @@ function PageMetadata({ title, description, path }: { title: string; description
 }
 
 function Footer() {
+	const inPagePushRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const slot = inPagePushRef.current;
+		if (!slot) return;
+		const script = document.createElement("script");
+		script.dataset.zone = "12217647";
+		script.src = "https://nap5k.com/tag.min.js";
+		slot.append(script);
+		return () => script.remove();
+	}, []);
+
 	return (
 		<>
 			<footer className="site-footer">
@@ -121,6 +133,7 @@ function Footer() {
 					</div>
 				</div>
 				<p className="footer-disclaimer"><strong>Aviso:</strong> não somos uma casa de apostas, não aceitamos apostas nem movimentamos dinheiro. Os palpites, análises e resultados publicados são apenas informativos e não garantem ganhos. Aposte com responsabilidade e apenas se tiver idade legal.</p>
+				<div className="in-page-push-slot" ref={inPagePushRef} />
 				<div className="footer-bottom"><span>© {new Date().getFullYear()} Palpites de Futebol. Todos os direitos reservados.</span><span>Conteúdo gratuito · Uso informativo</span></div>
 			</footer>
 			<a className="vip-fixed" href="https://uplcm.com/4/12217803" aria-label="Ver palpites VIP">
